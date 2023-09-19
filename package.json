@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@myriaddreamin/typst-ts-renderer": "0.4.0-rc5",
-    "@myriaddreamin/typst-ts-web-compiler": "*",
+    "@myriaddreamin/typst-ts-web-compiler": "0.4.0-rc5",
     "@myriaddreamin/typst.ts": "0.4.0-rc5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -30,8 +30,8 @@
   },
   "scripts": {
     "prepare-assets": "node ./scripts/copy-assets.js",
-    "start": "set PORT=3100 && react-scripts start",
-    "build": "react-scripts build",
+    "start": "set PORT=3100 && npm run prepare-assets && react-scripts start",
+    "build": "npm run prepare-assets && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
