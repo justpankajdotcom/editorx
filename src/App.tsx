@@ -17,14 +17,15 @@ TypstDocument.setWasmModuleInitOptions({
     // }),
   ],
   getModule: () =>
-    '/node_modules/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm',
+    '/typst-renderer.wasm',
 });
 
 export const App = () => {
   const [artifact, setArtifact] = useState<Uint8Array>(new Uint8Array(0));
 
   const getArtifactData = async () => {
-    const response = await fetch('http://localhost:8081/main.artifact.json');
+    // please get artifact 
+    const response = await fetch('http://localhost:20810/corpus/skyzh-cv/main.white.artifact.sir.in');
     const buffer = await response.arrayBuffer();
     const artifactData = new Uint8Array(buffer);
   

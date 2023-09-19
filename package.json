@@ -29,6 +29,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "prepare-assets": "node ./scripts/copy-assets.js",
     "start": "set PORT=3100 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
