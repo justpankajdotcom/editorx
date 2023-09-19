@@ -42,7 +42,7 @@ export const App = () => {
     <div>
       <h1
         style={{
-          color: 'black',
+          color: 'white',
           fontSize: '20px',
           fontFamily: `'Garamond', sans-serif`,
           margin: '20px',
