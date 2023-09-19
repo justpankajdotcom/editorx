@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { TypstDocument } from './lib';
 import * as typst from '@myriaddreamin/typst.ts';
+import { createTypstCompiler } from '@myriaddreamin/typst.ts';
+import { withAccessModel } from '@myriaddreamin/typst.ts/dist/esm/options.init';
 
 TypstDocument.setWasmModuleInitOptions({
   beforeBuild: [
@@ -24,13 +26,31 @@ export const App = () => {
   const [artifact, setArtifact] = useState<Uint8Array>(new Uint8Array(0));
 
   const getArtifactData = async () => {
+    const compiler = createTypstCompiler();
+    compiler.init({
+      beforeBuild: [
+        // todo: we don't need it actually. I remember I did it by default, but why it doesn't work?
+        withAccessModel(undefined as any),
+      ],
+      getModule() {
+        return '/typst-compiler.wasm'
+      },
+    }).then(async () => {
+    compiler.addSource('/main.typ', `
+#set text(fill: white)
+Hello, typst!`);
+    const result = await compiler.compile({ mainFilePath: '/main.typ' });
+    console.log('/main.typ', result);
+    // console.log("response ==> ", artifactData);
+    setArtifact(result);
+  })
+
+
     // please get artifact 
-    const response = await fetch('http://localhost:20810/corpus/skyzh-cv/main.white.artifact.sir.in');
-    const buffer = await response.arrayBuffer();
-    const artifactData = new Uint8Array(buffer);
+    // const response = await fetch('http://localhost:20810/corpus/skyzh-cv/main.white.artifact.sir.in');
+    // const buffer = await response.arrayBuffer();
+    // const artifactData = new Uint8Array(buffer);
   
-    console.log("response ==> ", artifactData);
-    setArtifact(artifactData);
   };
   
 

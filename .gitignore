@@ -11,6 +11,7 @@
 # production
 /build
 /public/typst-renderer.wasm
+/public/typst-compiler.wasm
 
 # misc
 .DS_Store
