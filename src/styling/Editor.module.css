@@ -1,0 +1,95 @@
+.toggleHeading {
+    font-size: 24px;
+  }
+  
+  .container {
+    display: flex;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+      "Lucida Sans", Arial, sans-serif;
+  }
+  
+  .editor,
+  .preview {
+    flex: 1;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+      "Lucida Sans", Arial, sans-serif;
+  }
+  
+
+  .CodeMirror {
+    height: 340px !important;
+    color: #fff;
+  }
+  
+  .CodeMirror-gutters {
+    background: #1d1e22 !important;
+  }
+  
+  .CodeMirror-scroll {
+    background: #1d1e22;
+  }
+
+
+  #moreButton {
+  border-style: none;
+  background: none;
+  font: 16px Serif;
+  color: blue;
+  margin: 0 0 10px 0;
+}
+
+#grow input:checked {
+  color: red;
+}
+
+#moreButton:hover {
+  color: black;
+}
+
+#grow {
+  -moz-transition: height .5s;
+  -ms-transition: height .5s;
+  -o-transition: height .5s;
+  -webkit-transition: height .5s;
+  transition: height .5s;
+  height: 0;
+  overflow: hidden;
+}
+
+.toolbarIcons {
+  height: 30px;
+  width: 30px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+/* CustomSelect.module.css */
+
+/* Hide the default select arrow */
+.customSelect select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+/* Add your custom styles to the customSelect container */
+.customSelect {
+  position: relative;
+  display: inline-block;
+  width: 200px; /* Adjust the width as needed */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+/* Style the select when it's focused */
+.customSelect select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+}
