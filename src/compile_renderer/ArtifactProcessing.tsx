@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, MutableRefObject, useImperativeHandle } from "react";
 import { TypstDocument } from "./lib/TypstDocument";
 import { withAccessModel } from "@myriaddreamin/typst.ts/dist/esm/options.init.mjs";
 import * as typst from "@myriaddreamin/typst.ts";
@@ -88,38 +88,79 @@ const moduleInitOptions: typst.InitOptions = {
   },
 };
 
-export default function Compile({ codeAsString }: { codeAsString: string }) {
+    
+const doCompile = async (compiler: typst.TypstCompiler, codeAsString: string, format: 'vector' | 'pdf') => {
+  const t1 = performance.now();
+  // Don't forget to reset the compiler, they are caching your source files
+  // I think it is bug-prone, I will think of good pattern to avoid this.
+  compiler.reset();
+
+  accessModel.addSourceFile("/main.typ", codeAsString, new Date());
+  console.log(accessModel);
+  try {
+    const result = await compiler.compile({ mainFilePath: "/main.typ", format });
+    const t2 = performance.now();
+    console.log("compiled", result,
+      `compile time: ${t2 - t1}ms`);
+    return result;
+  } catch (e) {
+    console.log('compile error', e);
+    return undefined;
+  }
+};
+
+export default function Compile({ codeAsString, onPdfExport }: { codeAsString: string, onPdfExport: number }) {
+  const [compiler, setCompiler] = useState<typst.TypstCompiler | undefined>(undefined);
   const [artifact, setArtifact] = useState<Uint8Array>(new Uint8Array(0));
 
   useEffect(() => {
     // Use a global compiler is okay when you don't want to compile document in parallel
-    const doCompile = async (compiler: typst.TypstCompiler) => {
-      const t1 = performance.now();
-      // Don't forget to reset the compiler, they are caching your source files
-      // I think it is bug-prone, I will think of good pattern to avoid this.
-      compiler.reset();
-
-      accessModel.addSourceFile("/main.typ", codeAsString, new Date());
-      console.log(accessModel);
-        // todo: remove optional format
-      try {
-        const result = await compiler.compile({ mainFilePath: "/main.typ", format: "vector" });
-        const t2 = performance.now();
-        console.log("compiled", result,
-          `compile time: ${t2 - t1}ms`);
-        setArtifact(result);
-      } catch (e) {
-        console.log('compile error', e);
-      }
-    };
-
-    console.log('createTypstCompiler', codeAsString);
+    console.log('createTypstCompiler');
     withGlobalCompiler(
       typst.createTypstCompiler,
       moduleInitOptions,
-      doCompile,
+      setCompiler,
     );
-  }, [codeAsString]);
+  }, []);
+
+  useEffect(() => {
+    if (!compiler) {
+      return;
+    }
+
+    doCompile( compiler, codeAsString, 'vector').then((result) => {
+      if (result !== undefined) {
+        setArtifact(result);
+      }
+    });
+  }, [codeAsString, compiler]);
+
+  useEffect(() => {
+    if (!compiler || onPdfExport === 0) {
+      return;
+    }
+
+    doCompile( compiler, codeAsString, 'pdf').then((pdfData) => {
+      if (!pdfData) {
+        return;
+      }
+
+      var pdfFile = new Blob([pdfData], { type: 'application/pdf' });
+
+      // Create element with <a> tag
+      const link = document.createElement('a');
+
+      // Add file content in the object URL
+      link.href = URL.createObjectURL(pdfFile);
+
+      // Add file name
+      link.target = '_blank';
+
+      // Add click event to <a> tag to save file.
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+  }, [onPdfExport]);
 
   return (
     <>
