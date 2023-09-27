@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { TypstDocument } from "./lib/TypstDocument";
-import * as typst from "@myriaddreamin/typst.ts";
-import { createTypstCompiler } from "@myriaddreamin/typst.ts";
 import { withAccessModel } from "@myriaddreamin/typst.ts/dist/esm/options.init.mjs";
+import * as typst from "@myriaddreamin/typst.ts";
 import { FsAccessModel } from "@myriaddreamin/typst.ts/dist/esm/internal.types.mjs";
 import { FetchAccessOptions } from "@myriaddreamin/typst.ts";
+import { withGlobalCompiler } from "../contrib/global-compiler";
 
 export class InMemoryAccessModel implements FsAccessModel {
   public mTimes: Map<string, Date | undefined> = new Map();
@@ -66,48 +66,60 @@ const containerStyle = {
 
 TypstDocument.setWasmModuleInitOptions({
   beforeBuild: [
-    typst.preloadRemoteFonts([
-      "http://localhost:20810/assets/fonts/LinLibertine_R.ttf",
-      "http://localhost:20810/assets/fonts/LinLibertine_RB.ttf",
-      "http://localhost:20810/assets/fonts/LinLibertine_RBI.ttf",
-      "http://localhost:20810/assets/fonts/LinLibertine_RI.ttf",
-      "http://localhost:20810/assets/fonts/NewCMMath-Book.otf",
-      "http://localhost:20810/assets/fonts/NewCMMath-Regular.otf",
-    ]),
+    // You won't need this as the fonts are already loaded from GitHub
+    // typst.preloadRemoteFonts([
+    //   "http://localhost:20810/assets/fonts/LinLibertine_R.ttf",
+    //   "http://localhost:20810/assets/fonts/LinLibertine_RB.ttf",
+    //   "http://localhost:20810/assets/fonts/LinLibertine_RBI.ttf",
+    //   "http://localhost:20810/assets/fonts/LinLibertine_RI.ttf",
+    //   "http://localhost:20810/assets/fonts/NewCMMath-Book.otf",
+    //   "http://localhost:20810/assets/fonts/NewCMMath-Regular.otf",
+    // ]),
   ],
   getModule: () => "/typst-renderer.wasm",
 });
 
+const accessModel = new InMemoryAccessModel("memory");
+
+const moduleInitOptions: typst.InitOptions = {
+  beforeBuild: [withAccessModel(accessModel)],
+  getModule() {
+    return "/typst-compiler.wasm";
+  },
+};
+
 export default function Compile({ codeAsString }: { codeAsString: string }) {
   const [artifact, setArtifact] = useState<Uint8Array>(new Uint8Array(0));
 
-  const accessModel = new InMemoryAccessModel("memory");
-
-  const getArtifactData = async (codeAsString: string) => {
-    const compiler = createTypstCompiler();
-    await compiler
-      .init({
-        beforeBuild: [withAccessModel(accessModel)],
-        getModule() {
-          return "/typst-compiler.wasm";
-        },
-      })
-      .then(async () => {
-        accessModel.addSourceFile("/main.typ", codeAsString, new Date());
-      });
-      // todo: let format optional
-    const result = await compiler.compile({ mainFilePath: "/main.typ", format: "vector" });
-    console.log("/main.typ", result);
-    setArtifact(result);
-  };
-
   useEffect(() => {
-    getArtifactData(codeAsString);
+    // Use a global compiler is okay when you don't want to compile document in parallel
+    const doCompile = async (compiler: typst.TypstCompiler) => {
+      const t1 = performance.now();
+      // Don't forget to reset the compiler, they are caching your source files
+      // I think it is bug-prone, I will think of good pattern to avoid this.
+      compiler.reset();
+
+      accessModel.addSourceFile("/main.typ", codeAsString, new Date());
+      console.log(accessModel);
+        // todo: remove optional format
+      try {
+        const result = await compiler.compile({ mainFilePath: "/main.typ", format: "vector" });
+        const t2 = performance.now();
+        console.log("compiled", result,
+          `compile time: ${t2 - t1}ms`);
+        setArtifact(result);
+      } catch (e) {
+        console.log('compile error', e);
+      }
+    };
+
+    console.log('createTypstCompiler', codeAsString);
+    withGlobalCompiler(
+      typst.createTypstCompiler,
+      moduleInitOptions,
+      doCompile,
+    );
   }, [codeAsString]);
-
-  useEffect(() => {
-    getArtifactData(codeAsString);
-  }, []);
 
   return (
     <>
