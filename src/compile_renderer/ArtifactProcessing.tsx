@@ -91,9 +91,6 @@ const moduleInitOptions: typst.InitOptions = {
     
 const doCompile = async (compiler: typst.TypstCompiler, codeAsString: string, format: 'vector' | 'pdf') => {
   const t1 = performance.now();
-  // Don't forget to reset the compiler, they are caching your source files
-  // I think it is bug-prone, I will think of good pattern to avoid this.
-  compiler.reset();
 
   accessModel.addSourceFile("/main.typ", codeAsString, new Date());
   console.log(accessModel);
