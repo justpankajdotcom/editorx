@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { TypstDocument } from "./lib/TypstDocument";
 import * as typst from "@myriaddreamin/typst.ts";
 import { createTypstCompiler } from "@myriaddreamin/typst.ts";
-import { withAccessModel } from "@myriaddreamin/typst.ts/dist/esm/options.init";
-import { FsAccessModel } from "@myriaddreamin/typst.ts/dist/esm/internal.types";
+import { withAccessModel } from "@myriaddreamin/typst.ts/dist/esm/options.init.mjs";
+import { FsAccessModel } from "@myriaddreamin/typst.ts/dist/esm/internal.types.mjs";
 import { FetchAccessOptions } from "@myriaddreamin/typst.ts";
 
 export class InMemoryAccessModel implements FsAccessModel {
@@ -95,7 +95,8 @@ export default function Compile({ codeAsString }: { codeAsString: string }) {
       .then(async () => {
         accessModel.addSourceFile("/main.typ", codeAsString, new Date());
       });
-    const result = await compiler.compile({ mainFilePath: "/main.typ" });
+      // todo: let format optional
+    const result = await compiler.compile({ mainFilePath: "/main.typ", format: "vector" });
     console.log("/main.typ", result);
     setArtifact(result);
   };
