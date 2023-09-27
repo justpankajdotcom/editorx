@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { withGlobalRenderer } from "@myriaddreamin/typst.ts/dist/esm/contrib/global-renderer";
+import { withGlobalRenderer } from "@myriaddreamin/typst.ts/dist/esm/contrib/global-renderer.mjs";
 import * as typst from "@myriaddreamin/typst.ts";
 import * as pdfjsLib from "pdfjs-dist";
 

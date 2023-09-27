@@ -4,9 +4,9 @@
   "private": true,
   "dependencies": {
     "@codemirror/lang-markdown": "^6.2.1",
-    "@myriaddreamin/typst-ts-renderer": "0.4.0-rc5",
-    "@myriaddreamin/typst-ts-web-compiler": "0.4.0-rc5",
-    "@myriaddreamin/typst.ts": "0.4.0-rc5",
+    "@myriaddreamin/typst-ts-renderer": "0.4.0-rc7",
+    "@myriaddreamin/typst-ts-web-compiler": "0.4.0-rc7",
+    "@myriaddreamin/typst.ts": "0.4.0-rc7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
